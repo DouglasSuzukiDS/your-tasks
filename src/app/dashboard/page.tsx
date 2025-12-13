@@ -3,7 +3,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from "@/components/ui/button"
 import { Task } from "@/generated/prisma/client"
 import { api } from "@/src/lib/axios"
-import { deleteCookieApp, getCookieApp } from "@/src/lib/cookies"
+import { deleteCookieApp } from "@/src/lib/cookies"
 import { StatusOptions } from "@/src/types/status-options"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, LogOut, PlusIcon, X } from "lucide-react"
@@ -27,7 +27,6 @@ const formSchema = z.object({
    status: z.enum(["pending", "in_progress", "completed"]).optional(),
 })
 
-
 export default function Dashboard() {
    const [tasks, setTasks] = useState<Task[]>([])
 
@@ -38,6 +37,7 @@ export default function Dashboard() {
       { value: 'in_progress', label: 'Em Progresso' },
       { value: 'completed', label: 'Concluído' },
    ]
+
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
@@ -111,7 +111,7 @@ export default function Dashboard() {
                               </CardHeader>
 
                               <CardContent>
-                                 <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
                                     <FieldGroup className="flex md:flex-row gap-4">
                                        <Controller

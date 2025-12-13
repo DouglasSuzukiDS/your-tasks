@@ -13,6 +13,9 @@ import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea, } from
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { SelectContent, SelectItem } from "@radix-ui/react-select"
 import { StatusOptions } from "../types/status-options"
+import { AlertDialogCancel } from "@/components/ui/alert-dialog"
+import { Check, X } from "lucide-react"
+import { api } from "../lib/axios"
 
 const formSchema = z.object({
    title: z.string().min(1, "Informe o título"),
@@ -26,12 +29,14 @@ const formSchema = z.object({
 type Props = {
    onSave: (data: z.infer<typeof formSchema>) => void
 }
-export const TaskForm = ({ onSave }: Props) => {
+
+export const TaskForm = ({  }: Props) => {
    const statusOptions: { value: StatusOptions, label: string }[] = [
       { value: 'pending', label: 'Pendente' },
       { value: 'in_progress', label: 'Em Progresso' },
       { value: 'completed', label: 'Concluído' },
    ]
+
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
@@ -41,25 +46,20 @@ export const TaskForm = ({ onSave }: Props) => {
       },
    })
 
-   function onSubmit(data: z.infer<typeof formSchema>) {
-      toast("You submitted the following values:", {
-         description: (
-            <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-               <code>{JSON.stringify(data, null, 2)}</code>
-            </pre>
-         ),
-         position: "bottom-right",
-         classNames: {
-            content: "flex flex-col gap-2",
-         },
-         style: {
-            "--border-radius": "calc(var(--radius)  + 4px)",
-         } as React.CSSProperties,
-      })
-   }
+   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+      const task = {
+         title: data.title,
+         description: data.description,
+         status: data.status,
+      }
 
-   const test = () => {
-      onSave(form.getValues())
+      const newTask = await api.post('/tasks', task)
+
+      if (newTask.status === 201) {
+         toast.success('Tarefa criada com sucesso!')
+      }
+
+      getUserTasks()
    }
 
    return (
@@ -73,7 +73,7 @@ export const TaskForm = ({ onSave }: Props) => {
          </CardHeader>
 
          <CardContent>
-            <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
                <FieldGroup className="flex md:flex-row gap-4">
                   <Controller
@@ -110,13 +110,13 @@ export const TaskForm = ({ onSave }: Props) => {
 
                            <Select value={field.value} onValueChange={field.onChange}>
                               <SelectTrigger className="">
-                                 <SelectValue placeholder="Status" />
+                                 <SelectValue placeholder="Status" className="text-blue-800" />
                               </SelectTrigger>
 
-                              <SelectContent className="bg-red-500">
+                              <SelectContent className="bg-gray-600">
                                  {statusOptions.map((status) => (
-                                    <SelectItem key={status.label} value={status.value}>
-                                       {status.label.charAt(0).toUpperCase() + status.label.slice(1).replace('-', ' ')}
+                                    <SelectItem key={status.label} value={status.value} className="text-gray-300">
+                                       {status.label}
                                     </SelectItem>
                                  ))}
                               </SelectContent>
@@ -163,6 +163,18 @@ export const TaskForm = ({ onSave }: Props) => {
                      </Field>
                   )}
                />
+
+               <FieldGroup className="flex justify-end gap-4 md:flex-row">
+                  <AlertDialogCancel>
+                     <X />
+                     Cancelar
+                  </AlertDialogCancel>
+
+                  <Button type="submit">
+                     <Check />
+                     Confirmar
+                  </Button>
+               </FieldGroup>
             </form>
          </CardContent>
       </Card>
