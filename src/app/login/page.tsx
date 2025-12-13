@@ -15,8 +15,6 @@ import { api } from "@/src/lib/axios"
 import { redirect } from "next/navigation"
 import { getCookieApp, setCookieApp } from "@/src/lib/cookies"
 
-
-
 const formSchema = z.object({
    name: z.string().min(2, 'O nome deve ter no mínimo 2 caracteres.'),
    email: z.email('Informe um email válido.'),
@@ -87,22 +85,7 @@ export default function Page() {
 
       setStep('validateEmail')
 
-      toast("You submitted the following values:", {
-         description: (
-            <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-               <code>{JSON.stringify(data, null, 2)}</code>
-            </pre>
-         ),
-         position: "bottom-right",
-         classNames: {
-            content: "flex flex-col gap-2",
-         },
-         style: {
-            "--border-radius": "calc(var(--radius)  + 4px)",
-         } as React.CSSProperties,
-      })
-
-
+      toast.success("Cadastro realizado com sucesso! Agora você pode fazer login.✌️", { className: 'bg-gray-800' })
    }
 
    const cookie = async () => {
@@ -260,8 +243,7 @@ export default function Page() {
                         }
 
                         {step === 'register' &&
-                           <Button type="submit" form="form-rhf-demo"
-                              onClick={handleLogin}>
+                           <Button type="submit" form="form-rhf-demo">
                               Cadastrar
                            </Button>
                         }
