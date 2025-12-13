@@ -23,7 +23,10 @@ const formSchema = z.object({
    status: z.enum(["pending", "in_progress", "completed"]).optional(),
 })
 
-export const TaskForm = () => {
+type Props = {
+   onSave: (data: z.infer<typeof formSchema>) => void
+}
+export const TaskForm = ({ onSave }: Props) => {
    const statusOptions: { value: StatusOptions, label: string }[] = [
       { value: 'pending', label: 'Pendente' },
       { value: 'in_progress', label: 'Em Progresso' },
@@ -55,6 +58,10 @@ export const TaskForm = () => {
       })
    }
 
+   const test = () => {
+      onSave(form.getValues())
+   }
+
    return (
       <Card className="bg-gray-800/10">
          <CardHeader className="hidden">
@@ -73,7 +80,7 @@ export const TaskForm = () => {
                      name="title"
                      control={form.control}
                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="gap-2 w-3/5">
+                        <Field data-invalid={fieldState.invalid} className="w-full gap-2 md:w-3/5">
                            <FieldLabel htmlFor="title" className="text-gray-300" >
                               Título
                            </FieldLabel>
@@ -102,11 +109,11 @@ export const TaskForm = () => {
                            </FieldLabel>
 
                            <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="w-45">
+                              <SelectTrigger className="">
                                  <SelectValue placeholder="Status" />
                               </SelectTrigger>
 
-                              <SelectContent className="w-full bg-red-500">
+                              <SelectContent className="bg-red-500">
                                  {statusOptions.map((status) => (
                                     <SelectItem key={status.label} value={status.value}>
                                        {status.label.charAt(0).toUpperCase() + status.label.slice(1).replace('-', ' ')}
