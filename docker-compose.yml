@@ -1,0 +1,22 @@
+version: '5.0'
+services:
+  your-tasks:
+    image: mysql:8.0
+    container_name: your-tasks
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: your-tasks
+      MYSQL_USER: yourtasks
+      MYSQL_PASSWORD: yourtasks
+      MYSQL_ROOT_PASSWORD: yourtasks
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  db_data:
