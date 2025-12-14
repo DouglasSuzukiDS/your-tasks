@@ -15,7 +15,9 @@ import { Check, X } from "lucide-react"
 import { api } from "../lib/axios"
 import { AlertDialogCancel } from "@/components/ui/alert-dialog"
 import { TaskStatus } from "../types/task-status"
-import { Task } from "../types/task"
+import { Task, TaskData } from "../types/task"
+import { useTasks } from "../store/task"
+import { useEffect } from "react"
 
 const formSchema = z.object({
    title: z.string().min(1, "Informe o título"),
@@ -28,11 +30,12 @@ const formSchema = z.object({
 
 type Props = {
    task?: Task
-   getUserTasks: () => void
    setOpen: (open: boolean) => void
 }
 
-export const TaskForm = ({ task, getUserTasks, setOpen }: Props) => {
+export const TaskForm = ({ task, setOpen }: Props) => {
+   const { getUserTasks } = useTasks()
+
    const statusOptions: { value: TaskStatus, label: string }[] = [
       { value: 'pending', label: 'Pendente' },
       { value: 'in_progress', label: 'Em Progresso' },
@@ -42,25 +45,29 @@ export const TaskForm = ({ task, getUserTasks, setOpen }: Props) => {
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-         title: task?.title || "",
-         description: task?.description || "",
-         status: task?.status || "pending",
+         title: "",
+         description: "",
+         status: "pending",
       },
    })
 
    const onSubmit = async () => {
       const { title, description, status } = form.getValues()
 
-      const task = {
+      const data = {
          title,
          description,
-         status: status?.toLocaleUpperCase(),
+         status: status?.toLocaleUpperCase() as TaskStatus,
       }
 
-      try {
-         const newTask = await api.post('/tasks', task)
+      task ? await updateTask(task.id, data) : await newTask(data)
+   }
 
-         if (newTask.status === 201) {
+   const newTask = async (task: TaskData) => {
+      try {
+         const registerTask = await api.post('/tasks', task)
+
+         if (registerTask.status === 201) {
             form.reset()
 
             setOpen(false)
@@ -74,6 +81,50 @@ export const TaskForm = ({ task, getUserTasks, setOpen }: Props) => {
          toast.error('Erro ao criar a tarefa. Tente novamente.')
       }
    }
+
+   const updateTask = async (taskId: number, task: TaskData) => {
+      try {
+         const updatedTask = await api.put(`/tasks/${taskId}`, task)
+         if (updatedTask.status === 200) {
+            form.reset()
+            setOpen(false)
+            toast.success('Tarefa atualizada com sucesso!')
+            getUserTasks()
+         }
+      } catch (error) {
+         console.error('Error updating task:', error)
+         toast.error('Erro ao atualizar a tarefa. Tente novamente.')
+      }
+   }
+
+   const convertTaskStatus = (status: string) => {
+      switch (status.toLocaleUpperCase()) {
+         case 'PENDING':
+            return 'pending'
+         case 'IN_PROGRESS':
+            return 'in_progress'
+         case 'COMPLETED':
+            return 'completed'
+         default:
+            return 'pending'
+      }
+   }
+
+   useEffect(() => {
+      if (task) {
+         const statusConverted = convertTaskStatus(task.status)
+
+         console.log(task.status.toLocaleLowerCase() === statusConverted ? 'SIM' : 'NAO')
+
+         form.reset({
+            title: task.title,
+            description: task.description,
+            status: statusConverted,
+         })
+
+         console.log(form.getValues('status'))
+      }
+   }, [task])
 
    return (
       <Card className="bg-gray-800/10">
@@ -123,7 +174,7 @@ export const TaskForm = ({ task, getUserTasks, setOpen }: Props) => {
 
                            <Select value={field.value} onValueChange={field.onChange}>
                               <SelectTrigger className="text-gray-400 font-medium">
-                                 <SelectValue defaultValue={'pending'} placeholder="Status" className="text-blue-800" />
+                                 <SelectValue placeholder="Status" className="text-blue-800" />
                               </SelectTrigger>
 
                               <SelectContent className="bg-gray-600">
@@ -177,13 +228,13 @@ export const TaskForm = ({ task, getUserTasks, setOpen }: Props) => {
                   )}
                />
 
-               <FieldGroup className="flex justify-end gap-4 md:flex-row">
-                  <AlertDialogCancel>
+               <FieldGroup className="w-full flex flex-col justify-end gap-4 md:flex-row">
+                  <AlertDialogCancel className="flex-1 md:w-auto">
                      <X />
                      Cancelar
                   </AlertDialogCancel>
 
-                  <Button type="submit">
+                  <Button type="submit" className="flex-1 md:w-auto">
                      <Check />
                      Confirmar
                   </Button>

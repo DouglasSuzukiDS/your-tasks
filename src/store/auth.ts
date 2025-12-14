@@ -1,11 +1,12 @@
 import { deleteCookie, setCookie } from "cookies-next";
 import { create } from "zustand";
 
-type Store = {
+type AuthStore = {
    token: string | null
    setToken: (newToken: string | null) => void
 }
-export const useAuth = create<Store>()(set => ({
+
+export const useAuth = create<AuthStore>()(set => ({
    token: null,
 
    setToken: (newToken: string | null) => set(state => {
