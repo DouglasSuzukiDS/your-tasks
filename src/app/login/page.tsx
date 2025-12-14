@@ -11,8 +11,9 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { api } from "@/src/lib/axios"
-import { cookie, getCookieApp, setCookieApp } from "@/src/lib/cookies"
-import { redirect, useRouter } from "next/navigation"
+import { cookie, setCookieApp } from "@/src/lib/cookies"
+import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 
 const formSchema = z.object({
    name: z.string().min(2, 'O nome deve ter no mínimo 2 caracteres.'),
@@ -25,6 +26,7 @@ type Step = 'validateEmail' | 'login' | 'register'
 export default function Page() {
    const router = useRouter()
    const [step, setStep] = useState<Step>('validateEmail')
+   const [showPassword, setShowPassword] = useState(false)
 
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -36,7 +38,7 @@ export default function Page() {
    })
 
    const handleValidateEmail = async () => {
-      const emailField = form.getValues('email')
+      const emailField = form.getValues('email').toLocaleLowerCase()
       const validEmail = await form.trigger('email')
 
       if (!validEmail) return
@@ -55,7 +57,7 @@ export default function Page() {
 
       try {
          const authenticated = await api.post('/auth/login', {
-            email,
+            email: email.toLocaleLowerCase(),
             password
          })
 
@@ -114,8 +116,7 @@ export default function Page() {
             </CardHeader>
 
             <CardContent>
-               <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
-
+               <form>
                   <FieldGroup className="gap-4">
                      <Controller
                         name="email"
@@ -150,12 +151,24 @@ export default function Page() {
                                     Senha
                                  </FieldLabel>
 
-                                 <Input
-                                    {...field}
-                                    id="password"
-                                    aria-invalid={fieldState.invalid}
-                                    placeholder="Senha"
-                                    className="text-gray-400 placeholder:text-gray-900" />
+                                 <FieldLabel
+                                    className="border rounded-md pr-2 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] transition-colors color">
+                                    <Input
+                                       {...field}
+                                       id="password"
+                                       type={showPassword ? 'text' : 'password'}
+                                       aria-invalid={fieldState.invalid}
+                                       placeholder="Senha"
+                                       className="text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none border-none"
+                                    />
+                                    {showPassword ?
+                                       <EyeOff
+                                          className="text-gray-400"
+                                          onClick={() => setShowPassword(!showPassword)} /> :
+                                       <Eye
+                                          className="text-gray-400"
+                                          onClick={() => setShowPassword(!showPassword)} />}
+                                 </FieldLabel>
 
                                  {fieldState.invalid && (
                                     <FieldError className="text-[12px]" errors={[fieldState.error]} />
@@ -198,12 +211,24 @@ export default function Page() {
                                     Senha
                                  </FieldLabel>
 
-                                 <Input
-                                    {...field}
-                                    id="password"
-                                    aria-invalid={fieldState.invalid}
-                                    placeholder="Senha"
-                                    className="text-gray-400 placeholder:text-gray-900" />
+                                 <FieldLabel
+                                    className="border rounded-md pr-2 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] transition-colors color">
+                                    <Input
+                                       {...field}
+                                       id="password"
+                                       type={showPassword ? 'text' : 'password'}
+                                       aria-invalid={fieldState.invalid}
+                                       placeholder="Senha"
+                                       className="text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none border-none"
+                                    />
+                                    {showPassword ?
+                                       <EyeOff
+                                          className="text-gray-400"
+                                          onClick={() => setShowPassword(!showPassword)} /> :
+                                       <Eye
+                                          className="text-gray-400"
+                                          onClick={() => setShowPassword(!showPassword)} />}
+                                 </FieldLabel>
 
                                  {fieldState.invalid && (
                                     <FieldError className="text-[12px]" errors={[fieldState.error]} />
@@ -218,14 +243,12 @@ export default function Page() {
                </form>
             </CardContent>
 
-
             <CardFooter>
                <Field orientation="horizontal">
-
                   {step === 'validateEmail' &&
                      <FieldGroup className="flex flex-row justify-end gap-4">
                         <Button
-                           className=""
+                           className="flex-1 md:w-1/3flex justify-center items-center text-gray-300 gap-2 px-3 py-2 rounded-md cursor-pointer bg-blue-500 hover:bg-blue-600"
                            onClick={handleValidateEmail}>
                            Avançar
                         </Button>
@@ -234,18 +257,24 @@ export default function Page() {
 
                   {step !== 'validateEmail' &&
                      <FieldGroup className="flex flex-row justify-end gap-4">
-                        <Button variant="outline" onClick={handleBack}>
+                        <Button
+                           className="flex-1 md:w-1/3 text-gray-300 p-2 rounded-md border border-gray-700 bg-gray-500 hover:text-gray-300  hover:bg-gray-600"
+                           onClick={handleBack}>
                            Voltar
                         </Button>
 
                         {step === 'login' &&
-                           <Button onClick={handleLogin}>
+                           <Button
+                              className="flex-1 md:w-1/3 justify-center items-center text-gray-300 gap-2 px-3 py-2 rounded-md cursor-pointer bg-blue-500 hover:bg-blue-600"
+                              onClick={handleLogin}>
                               Logar
                            </Button>
                         }
 
                         {step === 'register' &&
-                           <Button type="submit" form="form-rhf-demo">
+                           <Button
+                              className="flex-1 md:w-1/3 flex justify-center items-center text-gray-300 gap-2 px-3 py-2 rounded-md cursor-pointer bg-blue-500 hover:bg-blue-600"
+                              onClick={form.handleSubmit(onSubmit)}>
                               Cadastrar
                            </Button>
                         }

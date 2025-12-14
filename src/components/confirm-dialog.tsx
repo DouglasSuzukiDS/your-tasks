@@ -1,8 +1,5 @@
-import { redirect } from "next/navigation"
-import { deleteCookieApp } from "../lib/cookies"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { Check, LogOut, X } from "lucide-react"
+import { Check, X } from "lucide-react"
 import { ReactNode } from "react"
 import { Label } from "@radix-ui/react-dropdown-menu"
 
@@ -17,7 +14,7 @@ export const ConfirmDialog = ({ label, iconLabel, title, description, onConfirm 
 
    return (
       <AlertDialog>
-         <AlertDialogTrigger className="px-2 py-3">
+         <AlertDialogTrigger className="px-3 py-2 rounded-md border border-gray-700 hover:bg-gray-700">
             <Label className="flex items-center text-gray-400 text-sm gap-2 cursor-pointer">
                {iconLabel}
                {label}
@@ -35,12 +32,14 @@ export const ConfirmDialog = ({ label, iconLabel, title, description, onConfirm 
             </AlertDialogHeader>
 
             <AlertDialogFooter>
-               <AlertDialogCancel>
+               <AlertDialogCancel className="flex-1 text-gray-300 p-2 rounded-md border border-gray-700 bg-gray-500 hover:text-gray-300  hover:bg-gray-600">
                   <X />
                   Cancelar
                </AlertDialogCancel>
 
-               <AlertDialogAction onClick={onConfirm}>
+               <AlertDialogAction
+                  className="flex-1 flex justify-center items-center text-gray-300 gap-2 px-3 py-2 rounded-md cursor-pointer bg-blue-500 hover:bg-blue-600"
+                  onClick={onConfirm}>
                   <Check />
                   Confirmar
                </AlertDialogAction>

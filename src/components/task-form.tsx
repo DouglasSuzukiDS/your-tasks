@@ -6,12 +6,12 @@ import { toast } from "sonner"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea, } from "@/components/ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Check, Delete, Trash, Trash2, Trash2Icon, X } from "lucide-react"
+import { Check, Trash2, X } from "lucide-react"
 import { api } from "../lib/axios"
 import { AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { TaskStatus } from "../types/task-status"
@@ -19,7 +19,6 @@ import { Task, TaskData } from "../types/task"
 import { useTasks } from "../store/task"
 import { useEffect } from "react"
 import { format } from "date-fns"
-import { AlertDialogAction } from "@radix-ui/react-alert-dialog"
 import { ConfirmDialog } from "./confirm-dialog"
 
 const formSchema = z.object({
@@ -147,9 +146,9 @@ export const TaskForm = ({ task, setOpen }: Props) => {
    }, [task])
 
    return (
-      <AlertDialogContent className="bg-gray-800">
+      <AlertDialogContent className="max-h-5/6 bg-gray-800 overflow-auto">
          <AlertDialogHeader className="flex flex-row justify-between items-center">
-            <div>
+            < div >
                <AlertDialogTitle className="text-gray-300">
                   {task ? 'Visualizar tarefa' : 'Nova tarefa'}
                </AlertDialogTitle>
@@ -157,7 +156,7 @@ export const TaskForm = ({ task, setOpen }: Props) => {
                <AlertDialogDescription className="text-gray-400">
                   {task ? 'Visualize os detalhes da tarefa.' : 'Insira os detalhes da tarefa aqui.'}
                </AlertDialogDescription>
-            </div>
+            </div >
 
             {task &&
                <ConfirmDialog
@@ -168,9 +167,9 @@ export const TaskForm = ({ task, setOpen }: Props) => {
                   onConfirm={() => { deleteTask(task!.id) }} />
             }
 
-         </AlertDialogHeader>
+         </AlertDialogHeader >
 
-         <Card className="bg-gray-800/10 mt-4">
+         <Card className="h-full bg-gray-800/10 mt-4">
 
             <CardContent>
                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -273,13 +272,16 @@ export const TaskForm = ({ task, setOpen }: Props) => {
                            Última atualização: {format(task.updatedAt as Date, "dd/MM/yyyy 'às' HH:mm")}</p>}
                   </FieldGroup>}
 
-                  <FieldGroup className="w-full flex flex-col justify-end gap-4 md:flex-row">
-                     <AlertDialogCancel className="flex-1 md:w-auto">
+                  <FieldGroup className="w-full flex flex-col md:flex-row justify-end gap-4">
+                     <AlertDialogCancel
+                        className="flex-1 text-gray-300 p-2 rounded-md border border-gray-700 bg-gray-500 hover:text-gray-300  hover:bg-gray-600">
                         <X />
                         Cancelar
                      </AlertDialogCancel>
 
-                     <Button type="submit" className="flex-1 md:w-auto">
+                     <Button
+                        type="submit"
+                        className="flex-1 flex justify-center items-center text-gray-300 gap-2 px-3 py-2 rounded-md cursor-pointer bg-blue-500 hover:bg-blue-600">
                         <Check />
                         Confirmar
                      </Button>
@@ -287,6 +289,6 @@ export const TaskForm = ({ task, setOpen }: Props) => {
                </form>
             </CardContent>
          </Card>
-      </AlertDialogContent>
+      </AlertDialogContent >
    )
 }

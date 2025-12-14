@@ -29,13 +29,13 @@ export default function Page() {
 
    return (
       <main className="w-full h-screen bg-gray-900 p-6 md:p-12 flex items-center justify-center">
-         <div className="min-w-2/3 h-full flex justify-center items-center gap-4 border flex-col scroll-auto">
-            <div className="flex justify-between items-center gap-4 w-full mb-4">
-               <h1 className="text-white text-3xl">Suas Tarefas</h1>
+         <div className="min-w-2/3 h-full flex justify-center items-center gap-4 flex-col scroll-auto">
+            <div className="flex justify-between items-center gap-4 w-full">
+               <h1 className="text-gray-300 text-3xl">Suas Tarefas</h1>
 
                <AlertDialog open={open} onOpenChange={setOpen}>
                   <AlertDialogTrigger>
-                     <Label className="flex items-center text-gray-400 gap-2 cursor-pointer">
+                     <Label className="flex justify-center items-center text-gray-300 gap-2 px-3 py-2 rounded-md cursor-pointer bg-blue-500">
                         <PlusIcon className="text-sm" />
                         Nova tarefa
                      </Label>
@@ -53,7 +53,7 @@ export default function Page() {
                   onConfirm={handleLogout} />
             </div>
 
-            <div className="w-full flex-1 p-2 overflow-y-auto">
+            <div className="w-full flex-1 overflow-y-auto">
                <TaskTable tasks={tasks} />
             </div>
          </div>

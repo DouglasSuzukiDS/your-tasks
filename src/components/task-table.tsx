@@ -1,13 +1,11 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Task } from "../types/task"
-import { Button } from "@/components/ui/button"
-import { PlusIcon, ScanEye, View, ViewIcon } from "lucide-react"
+import { ViewIcon } from "lucide-react"
 import { TaskForm } from "./task-form"
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { ChangeEvent, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { TaskStatus } from "../types/task-status"
 import { Input } from "@/components/ui/input"
-import { useTasks } from "../store/task"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 
@@ -21,8 +19,6 @@ export const TaskTable = ({ tasks }: Props) => {
 
    const [cloneTasks, setCloneTasks] = useState<Task[]>([])
    const [openTaskId, setOpenTaskId] = useState<number | null>(null)
-
-   const { setTasks } = useTasks()
 
    const searchTask = (term: string, status: TaskStatusFilter) => {
       setSearch(term)
@@ -91,86 +87,94 @@ export const TaskTable = ({ tasks }: Props) => {
 
    return (
       <div className="flex flex-col w-full gap-4">
-         <div className="flex flex-col gap-4 md:flex-row">
-            <Input
-               placeholder="Buscar tarefa..."
-               value={search}
-               onChange={(e) => searchTask(e.target.value, statusFilter)}
-               type="search"
-               className="text-gray-400" />
+         {tasks.length === 0 ?
+            <Label className="flex justify-center text-xl text-gray-400">
+               Você ainda não possui tarefas. Crie uma agora mesmo!</Label> :
 
-            <Select
-               value={statusFilter}
-               onValueChange={(value) => searchTask(search, value as TaskStatusFilter)}>
-               <SelectTrigger className="text-gray-400 font-medium w-auto">
-                  <SelectValue defaultValue={'pending'} placeholder="Status" className="text-blue-800" />
-               </SelectTrigger>
+            <div className="w-full h-full">
+               <div className="flex flex-col gap-4 px- md:flex-row">
+                  <Input
+                     placeholder="Buscar tarefa..."
+                     value={search}
+                     onChange={(e) => searchTask(e.target.value, statusFilter)}
+                     type="search"
+                     className="text-gray-400" />
 
-               <SelectContent className="bg-gray-600 w-auto">
-                  {statusOptions.map((status) => (
-                     <SelectItem key={status.label} value={status.value} className="text-gray-300 data-[state=checked]:text-blue-400 data-[state=checked]:font-medium">
-                        {status.label}
-                     </SelectItem>
-                  ))}
-               </SelectContent>
-            </Select>
-         </div>
+                  <Select
+                     value={statusFilter}
+                     onValueChange={(value) => searchTask(search, value as TaskStatusFilter)}>
+                     <SelectTrigger className="text-gray-400 font-medium w-auto">
+                        <SelectValue defaultValue={'pending'} placeholder="Status" className="text-blue-800" />
+                     </SelectTrigger>
 
-         <div className="h-20">
-            <Table className="">
-               <TableCaption>
-                  {cloneTasks.length === 0 && 'Nenhuma tarefa encontrada. 🫣'}
-                  {cloneTasks.length === 1 ? '1 tarefa encontrada. 🫰' : `${cloneTasks.length >= 2 ? 'tarefas encontradas. 🫰' : ''}`}
-               </TableCaption>
+                     <SelectContent className="bg-gray-600 w-auto">
+                        {statusOptions.map((status) => (
+                           <SelectItem key={status.label} value={status.value} className="text-gray-300 data-[state=checked]:text-blue-400 data-[state=checked]:font-medium">
+                              {status.label}
+                           </SelectItem>
+                        ))}
+                     </SelectContent>
+                  </Select>
+               </div>
 
-               <TableHeader>
-                  <TableRow>
-                     <TableHead className="text-gray-300">Status</TableHead>
-                     <TableHead className="text-gray-300">Título</TableHead>
-                     <TableHead className="text-gray-300">Descrição</TableHead>
-                     <TableHead className="text-gray-300">Ações</TableHead>
-                  </TableRow>
-               </TableHeader>
+               <div className="h-20 mt-4">
+                  <Table className="">
+                     <TableCaption>
+                        {cloneTasks.length === 0 && 'Nenhuma tarefa encontrada. 🫣'}
+                        {cloneTasks.length === 1 && '1 tarefa encontrada. 🫰'}
+                        {cloneTasks.length > 1 && `${cloneTasks.length} tarefas encontradas. 🫰`}
+                     </TableCaption>
 
-               <TableBody className="">
-                  {cloneTasks.map((task) => (
-                     <TableRow key={task.id}>
-                        <TableCell className="text-gray-400 font-semibold">{translateStatus(task.status)}</TableCell>
-                        <TableCell className="text-gray-400 font-semibold">{task.title}</TableCell>
-                        <TableCell className="text-gray-400 font-semibold truncate">{task.description}</TableCell>
-                        <TableCell>
-                           <AlertDialog
-                              open={openTaskId === task.id}
-                              onOpenChange={(open) => setOpenTaskId(open ? task.id : null)}>
+                     <TableHeader>
+                        <TableRow>
+                           <TableHead className="text-gray-300">Status</TableHead>
+                           <TableHead className="text-gray-300">Título</TableHead>
+                           <TableHead className="text-gray-300">Descrição</TableHead>
+                           <TableHead className="text-gray-300">Ações</TableHead>
+                        </TableRow>
+                     </TableHeader>
 
-                              <AlertDialogTrigger asChild>
-                                 <Label className="flex items-center text-gray-400 gap-2 cursor-pointer">
-                                    <ViewIcon className="text-sm" />
-                                    Visualizar
-                                 </Label>
-                              </AlertDialogTrigger>
+                     <TableBody className="">
+                        {cloneTasks.map((task) => (
+                           <TableRow key={task.id}>
+                              <TableCell className="w-30 text-gray-400 font-semibold">{translateStatus(task.status)}</TableCell>
+                              <TableCell className="text-gray-400 font-semibold">{task.title}</TableCell>
+                              <TableCell className="text-gray-400 font-semibold truncate">{task.description}</TableCell>
+                              <TableCell className="w-30">
+                                 <AlertDialog
+                                    open={openTaskId === task.id}
+                                    onOpenChange={(open) => setOpenTaskId(open ? task.id : null)}>
 
-                              <AlertDialogContent className="bg-gray-800">
-                                 <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-gray-300">Nova tarefa</AlertDialogTitle>
+                                    <AlertDialogTrigger asChild>
+                                       <Label className="flex justify-center items-center text-gray-400 p-2 rounded-md border border-gray-700 hover:bg-gray-700">
+                                          <ViewIcon className="text-sm" />
+                                          Visualizar
+                                       </Label>
+                                    </AlertDialogTrigger>
 
-                                    <AlertDialogDescription className="text-gray-400">
-                                       Insira os detalhes da sua nova tarefa aqui.
-                                       <TaskForm task={task} setOpen={() => setOpenTaskId(null)} />
-                                    </AlertDialogDescription>
+                                    <AlertDialogContent className="bg-gray-800">
+                                       <AlertDialogHeader>
+                                          <AlertDialogTitle className="text-gray-300">Nova tarefa</AlertDialogTitle>
 
-                                 </AlertDialogHeader>
+                                          <AlertDialogDescription className="text-gray-400">
+                                             Insira os detalhes da sua nova tarefa aqui.
+                                             <TaskForm task={task} setOpen={() => setOpenTaskId(null)} />
+                                          </AlertDialogDescription>
 
-                              </AlertDialogContent>
+                                       </AlertDialogHeader>
 
-                           </AlertDialog>
+                                    </AlertDialogContent>
 
-                        </TableCell>
-                     </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
-         </div>
+                                 </AlertDialog>
+
+                              </TableCell>
+                           </TableRow>
+                        ))}
+                     </TableBody>
+                  </Table>
+               </div>
+            </div>
+         }
       </div>
    )
 }
