@@ -1,6 +1,8 @@
-import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import "dotenv/config";
+// Prisma MySQL setup
+/*import { PrismaClient } from "@/generated/prisma/client"
+
+import { PrismaMariaDb } from "@prisma/adapter-mariadb"
+import "dotenv/config"
 
 const adapter = new PrismaMariaDb({
    host: process.env.DATABASE_HOST,
@@ -8,7 +10,20 @@ const adapter = new PrismaMariaDb({
    password: process.env.DATABASE_PASSWORD,
    database: process.env.DATABASE_NAME,
    connectionLimit: 5
-});
-const prisma = new PrismaClient({ adapter });
+})
+
+const prisma = new PrismaClient({ adapter })
+
+export { prisma }*/
+
+// Prisma Postgres setup
+import "dotenv/config";
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from "@/generated/prisma/client";
+
+const connectionString = `${process.env.DATABASE_URL}`
+
+const adapter = new PrismaPg({ connectionString })
+const prisma = new PrismaClient({ adapter })
 
 export { prisma }

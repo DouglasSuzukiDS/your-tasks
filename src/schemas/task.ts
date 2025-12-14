@@ -5,7 +5,7 @@ export const taskSchema = z.object({
    id: z.number().int(),
    title: z.string(),
    description: z.string(),
-   status: z.enum(["pending", "in_progress", "completed"]),
+   status: z.enum(["PENDING", "IN_PROGRESS", "COMPLETED"], 'Status com valor inválido.'),
    createdAt: z.date(),
    updatedAt: z.date().optional(),
 
@@ -16,5 +16,5 @@ export const taskSchema = z.object({
 export const updatedTaskSchema = taskSchema.partial().extend({
    title: z.string().optional(),
    description: z.string().optional(),
-   status: z.enum(["pending", "in_progress", "completed"], 'Status com valor inválido').optional(),
+   status: z.enum(["PENDING", "IN_PROGRESS", "COMPLETED"], 'Status com valor inválido.').optional(),
 }) 

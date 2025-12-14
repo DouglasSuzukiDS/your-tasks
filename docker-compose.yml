@@ -1,22 +1,45 @@
+# version: '5.0'
+# services:
+#   your-tasks:
+#     image: mysql:8.0
+#     container_name: your-tasks
+#     restart: unless-stopped
+#     environment:
+#       MYSQL_DATABASE: your-tasks
+#       MYSQL_USER: yourtasks
+#       MYSQL_PASSWORD: yourtasks
+#       MYSQL_ROOT_PASSWORD: yourtasks
+#     ports:
+#       - "3306:3306"
+#     volumes:
+#       - db_data:/var/lib/mysql
+#     healthcheck:
+#       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+# volumes:
+#   db_data:
+
 version: '5.0'
 services:
-  your-tasks:
-    image: mysql:8.0
+  db:
+    image: postgres:15
     container_name: your-tasks
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: your-tasks
-      MYSQL_USER: yourtasks
-      MYSQL_PASSWORD: yourtasks
-      MYSQL_ROOT_PASSWORD: yourtasks
+      POSTGRES_DB: your-tasks
+      POSTGRES_USER: yourtasks
+      POSTGRES_PASSWORD: yourtasks
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U yourtasks"]
       interval: 10s
       timeout: 5s
       retries: 5
+
 volumes:
   db_data:

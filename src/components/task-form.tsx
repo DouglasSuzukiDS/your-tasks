@@ -6,16 +6,16 @@ import { toast } from "sonner"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea, } from "@/components/ui/input-group"
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SelectContent, SelectItem } from "@radix-ui/react-select"
-import { StatusOptions } from "../types/status-options"
-import { AlertDialogCancel } from "@/components/ui/alert-dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Check, X } from "lucide-react"
 import { api } from "../lib/axios"
+import { AlertDialogCancel } from "@/components/ui/alert-dialog"
+import { TaskStatus } from "../types/task-status"
+import { Task } from "../types/task"
 
 const formSchema = z.object({
    title: z.string().min(1, "Informe o título"),
@@ -23,15 +23,17 @@ const formSchema = z.object({
       .string()
       .min(5, "Informe a descrição com pelos menos 5 caracteres.")
       .max(140, "A descrição deve ter no máximo 140 caracteres."),
-   status: z.enum(["pending", "in_progress", "completed"]).optional(),
+   status: z.enum(["pending", "in_progress", "completed"], 'Status com valor inválido.').optional(),
 })
 
 type Props = {
-   onSave: (data: z.infer<typeof formSchema>) => void
+   task?: Task
+   getUserTasks: () => void
+   setOpen: (open: boolean) => void
 }
 
-export const TaskForm = ({  }: Props) => {
-   const statusOptions: { value: StatusOptions, label: string }[] = [
+export const TaskForm = ({ task, getUserTasks, setOpen }: Props) => {
+   const statusOptions: { value: TaskStatus, label: string }[] = [
       { value: 'pending', label: 'Pendente' },
       { value: 'in_progress', label: 'Em Progresso' },
       { value: 'completed', label: 'Concluído' },
@@ -40,26 +42,37 @@ export const TaskForm = ({  }: Props) => {
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-         title: "",
-         description: "",
-         status: "pending",
+         title: task?.title || "",
+         description: task?.description || "",
+         status: task?.status || "pending",
       },
    })
 
-   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+   const onSubmit = async () => {
+      const { title, description, status } = form.getValues()
+
       const task = {
-         title: data.title,
-         description: data.description,
-         status: data.status,
+         title,
+         description,
+         status: status?.toLocaleUpperCase(),
       }
 
-      const newTask = await api.post('/tasks', task)
+      try {
+         const newTask = await api.post('/tasks', task)
 
-      if (newTask.status === 201) {
-         toast.success('Tarefa criada com sucesso!')
+         if (newTask.status === 201) {
+            form.reset()
+
+            setOpen(false)
+
+            toast.success('Tarefa criada com sucesso!')
+
+            getUserTasks()
+         }
+      } catch (error) {
+         console.error('Error creating task:', error)
+         toast.error('Erro ao criar a tarefa. Tente novamente.')
       }
-
-      getUserTasks()
    }
 
    return (
@@ -109,13 +122,13 @@ export const TaskForm = ({  }: Props) => {
                            </FieldLabel>
 
                            <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="">
-                                 <SelectValue placeholder="Status" className="text-blue-800" />
+                              <SelectTrigger className="text-gray-400 font-medium">
+                                 <SelectValue defaultValue={'pending'} placeholder="Status" className="text-blue-800" />
                               </SelectTrigger>
 
                               <SelectContent className="bg-gray-600">
                                  {statusOptions.map((status) => (
-                                    <SelectItem key={status.label} value={status.value} className="text-gray-300">
+                                    <SelectItem key={status.label} value={status.value} className="text-gray-300 data-[state=checked]:text-blue-400 data-[state=checked]:font-medium">
                                        {status.label}
                                     </SelectItem>
                                  ))}

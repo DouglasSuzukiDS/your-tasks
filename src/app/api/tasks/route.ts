@@ -34,6 +34,7 @@ export async function POST(request: Request) {
    const task = await createTask({
       title,
       description,
+      status,
       user: {
          connect: { token }
       }
