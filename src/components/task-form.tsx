@@ -11,7 +11,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea, } from "@/components/ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Check, X } from "lucide-react"
+import { Check, Delete, Trash, Trash2, Trash2Icon, X } from "lucide-react"
 import { api } from "../lib/axios"
 import { AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { TaskStatus } from "../types/task-status"
@@ -20,6 +20,7 @@ import { useTasks } from "../store/task"
 import { useEffect } from "react"
 import { format } from "date-fns"
 import { AlertDialogAction } from "@radix-ui/react-alert-dialog"
+import { ConfirmDialog } from "./confirm-dialog"
 
 const formSchema = z.object({
    title: z.string().min(1, "Informe o título"),
@@ -147,18 +148,28 @@ export const TaskForm = ({ task, setOpen }: Props) => {
 
    return (
       <AlertDialogContent className="bg-gray-800">
-         <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-300">
-               {task ? 'Visualizar tarefa' : 'Nova tarefa'}
-            </AlertDialogTitle>
+         <AlertDialogHeader className="flex flex-row justify-between items-center">
+            <div>
+               <AlertDialogTitle className="text-gray-300">
+                  {task ? 'Visualizar tarefa' : 'Nova tarefa'}
+               </AlertDialogTitle>
 
-            <AlertDialogDescription className="text-gray-400">
-               {task ? 'Visualize os detalhes da tarefa.' : 'Insira os detalhes da tarefa aqui.'}
-            </AlertDialogDescription>
+               <AlertDialogDescription className="text-gray-400">
+                  {task ? 'Visualize os detalhes da tarefa.' : 'Insira os detalhes da tarefa aqui.'}
+               </AlertDialogDescription>
+            </div>
 
+            {task &&
+               <ConfirmDialog
+                  label="Deletar"
+                  iconLabel={<Trash2 />}
+                  title="Deletar tarefa"
+                  description="Tem certeza que deseja deletar esta tarefa? Esta ação não pode ser desfeita."
+                  onConfirm={() => { deleteTask(task!.id) }} />
+            }
 
          </AlertDialogHeader>
-         
+
          <Card className="bg-gray-800/10 mt-4">
 
             <CardContent>

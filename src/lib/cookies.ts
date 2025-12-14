@@ -24,3 +24,9 @@ export const deleteCookieApp = async () => {
 
    cookie.delete('token')
 }
+
+export const cookie = async () => {
+   const hasCookie = await getCookieApp()
+
+   hasCookie && redirect('/dashboard')
+}

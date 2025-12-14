@@ -1,21 +1,29 @@
 'use client'
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { PlusIcon } from "lucide-react"
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { LogOut, PlusIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { TaskForm } from "@/src/components/task-form"
-import { LogoutDialog } from "@/src/components/logout-dialog"
 import { TaskTable } from "@/src/components/task-table"
-import { Button } from "@/components/ui/button"
 import { useTasks } from "@/src/store/task"
 import { Label } from "@/components/ui/label"
-import { DialogHeader } from "@/components/ui/dialog"
+import { ConfirmDialog } from "@/src/components/confirm-dialog"
+import { cookie, deleteCookieApp } from "@/src/lib/cookies"
+import { redirect, useRouter } from "next/navigation"
 
-export default function Dashboard() {
+export default function Page() {
    const { tasks, setTasks, getUserTasks } = useTasks()
    const [open, setOpen] = useState(false)
+   const router = useRouter()
+
+   const handleLogout = async () => {
+      await deleteCookieApp()
+
+      router.push('/login')
+   }
 
    useEffect(() => {
+      cookie()
       getUserTasks()
    }, [])
 
@@ -37,7 +45,12 @@ export default function Dashboard() {
 
                </AlertDialog>
 
-               <LogoutDialog />
+               <ConfirmDialog
+                  label="Logout"
+                  iconLabel={<LogOut />}
+                  title="Deletar tarefa"
+                  description="Tem certeza que deseja realizar o logout?"
+                  onConfirm={handleLogout} />
             </div>
 
             <div className="w-full flex-1 p-2 overflow-y-auto">

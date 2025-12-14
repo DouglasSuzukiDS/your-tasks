@@ -17,8 +17,8 @@ export const ConfirmDialog = ({ label, iconLabel, title, description, onConfirm 
 
    return (
       <AlertDialog>
-         <AlertDialogTrigger>
-            <Label className="flex items-center text-gray-400 gap-2 cursor-pointer">
+         <AlertDialogTrigger className="px-2 py-3">
+            <Label className="flex items-center text-gray-400 text-sm gap-2 cursor-pointer">
                {iconLabel}
                {label}
             </Label>

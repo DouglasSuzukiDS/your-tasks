@@ -7,13 +7,12 @@ import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea, } from "@/components/ui/input-group"
 import { useEffect, useState } from "react"
 import { api } from "@/src/lib/axios"
-import { redirect } from "next/navigation"
-import { getCookieApp, setCookieApp } from "@/src/lib/cookies"
+import { cookie, getCookieApp, setCookieApp } from "@/src/lib/cookies"
+import { redirect, useRouter } from "next/navigation"
 
 const formSchema = z.object({
    name: z.string().min(2, 'O nome deve ter no mínimo 2 caracteres.'),
@@ -24,6 +23,7 @@ const formSchema = z.object({
 type Step = 'validateEmail' | 'login' | 'register'
 
 export default function Page() {
+   const router = useRouter()
    const [step, setStep] = useState<Step>('validateEmail')
 
    const form = useForm<z.infer<typeof formSchema>>({
@@ -51,18 +51,26 @@ export default function Page() {
    }
 
    const handleLogin = async () => {
-      const authenticated = await api.post('/auth/login', {
-         email: form.getValues('email'),
-         password: form.getValues('password')
-      })
+      const { email, password } = form.getValues()
 
-      if (authenticated.status !== 200) {
-         return toast.error('E-mail ou senha inválidos. Tente novamente.')
+      try {
+         const authenticated = await api.post('/auth/login', {
+            email,
+            password
+         })
+
+         if (authenticated.status === 200) {
+            // return toast.error('E-mail ou senha inválidos. Tente novamente.')
+            await setCookieApp(authenticated.data.token)
+         }
+
+         console.log('authenticated', authenticated)
+
+         router.push('/dashboard')
+      } catch (error) {
+         console.log(error)
+         toast.error('E-mail ou senha inválidos. Error')
       }
-
-      await setCookieApp(authenticated.data.token)
-
-      redirect('/dashboard')
    }
 
    const handleBack = () => {
@@ -88,15 +96,10 @@ export default function Page() {
       toast.success("Cadastro realizado com sucesso! Agora você pode fazer login.✌️", { className: 'bg-gray-800' })
    }
 
-   const cookie = async () => {
-      const hasCookie = await getCookieApp()
-
-      hasCookie && redirect('/dashboard')
-   }
-
    useEffect(() => {
       cookie()
    }, [])
+
    return (
       <main className="w-full h-screen bg-gray-900 p-6 md:p-12 flex items-center justify-center">
          <Card className="w-full sm:max-w-md bg-gray-800">
@@ -218,7 +221,6 @@ export default function Page() {
 
             <CardFooter>
                <Field orientation="horizontal">
-
 
                   {step === 'validateEmail' &&
                      <FieldGroup className="flex flex-row justify-end gap-4">
