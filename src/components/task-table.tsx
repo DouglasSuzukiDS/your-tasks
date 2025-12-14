@@ -9,6 +9,7 @@ import { TaskStatus } from "../types/task-status"
 import { Input } from "@/components/ui/input"
 import { useTasks } from "../store/task"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 
 type Props = {
    tasks: Task[]
@@ -143,10 +144,10 @@ export const TaskTable = ({ tasks }: Props) => {
                               onOpenChange={(open) => setOpenTaskId(open ? task.id : null)}>
 
                               <AlertDialogTrigger asChild>
-                                 <Button>
+                                 <Label className="flex items-center text-gray-400 gap-2 cursor-pointer">
                                     <ViewIcon className="text-sm" />
                                     Visualizar
-                                 </Button>
+                                 </Label>
                               </AlertDialogTrigger>
 
                               <AlertDialogContent className="bg-gray-800">

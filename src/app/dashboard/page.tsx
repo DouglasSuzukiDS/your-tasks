@@ -8,6 +8,8 @@ import { LogoutDialog } from "@/src/components/logout-dialog"
 import { TaskTable } from "@/src/components/task-table"
 import { Button } from "@/components/ui/button"
 import { useTasks } from "@/src/store/task"
+import { Label } from "@/components/ui/label"
+import { DialogHeader } from "@/components/ui/dialog"
 
 export default function Dashboard() {
    const { tasks, setTasks, getUserTasks } = useTasks()
@@ -24,27 +26,15 @@ export default function Dashboard() {
                <h1 className="text-white text-3xl">Suas Tarefas</h1>
 
                <AlertDialog open={open} onOpenChange={setOpen}>
-                  <AlertDialogTrigger asChild>
-                     <Button>
+                  <AlertDialogTrigger>
+                     <Label className="flex items-center text-gray-400 gap-2 cursor-pointer">
                         <PlusIcon className="text-sm" />
                         Nova tarefa
-                     </Button>
+                     </Label>
                   </AlertDialogTrigger>
 
-                  <AlertDialogContent className="bg-gray-800">
-                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-gray-300">Nova tarefa</AlertDialogTitle>
+                  <TaskForm setOpen={setOpen} />
 
-                        <AlertDialogDescription className="text-gray-400">
-                           Insira os detalhes da sua nova tarefa aqui.
-
-                           <TaskForm setOpen={setOpen} />
-
-                        </AlertDialogDescription>
-
-                     </AlertDialogHeader>
-
-                  </AlertDialogContent>
                </AlertDialog>
 
                <LogoutDialog />

@@ -13,11 +13,13 @@ import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea, } from
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Check, X } from "lucide-react"
 import { api } from "../lib/axios"
-import { AlertDialogCancel } from "@/components/ui/alert-dialog"
+import { AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { TaskStatus } from "../types/task-status"
 import { Task, TaskData } from "../types/task"
 import { useTasks } from "../store/task"
 import { useEffect } from "react"
+import { format } from "date-fns"
+import { AlertDialogAction } from "@radix-ui/react-alert-dialog"
 
 const formSchema = z.object({
    title: z.string().min(1, "Informe o título"),
@@ -51,6 +53,19 @@ export const TaskForm = ({ task, setOpen }: Props) => {
       },
    })
 
+   const convertTaskStatus = (status: string) => {
+      switch (status.toLocaleUpperCase()) {
+         case 'PENDING':
+            return 'pending'
+         case 'IN_PROGRESS':
+            return 'in_progress'
+         case 'COMPLETED':
+            return 'completed'
+         default:
+            return 'pending'
+      }
+   }
+
    const onSubmit = async () => {
       const { title, description, status } = form.getValues()
 
@@ -60,10 +75,10 @@ export const TaskForm = ({ task, setOpen }: Props) => {
          status: status?.toLocaleUpperCase() as TaskStatus,
       }
 
-      task ? await updateTask(task.id, data) : await newTask(data)
+      task ? await updateTask(task.id, data) : await createTask(data)
    }
 
-   const newTask = async (task: TaskData) => {
+   const createTask = async (task: TaskData) => {
       try {
          const registerTask = await api.post('/tasks', task)
 
@@ -97,16 +112,22 @@ export const TaskForm = ({ task, setOpen }: Props) => {
       }
    }
 
-   const convertTaskStatus = (status: string) => {
-      switch (status.toLocaleUpperCase()) {
-         case 'PENDING':
-            return 'pending'
-         case 'IN_PROGRESS':
-            return 'in_progress'
-         case 'COMPLETED':
-            return 'completed'
-         default:
-            return 'pending'
+   const deleteTask = async (taskId: number) => {
+      try {
+         const deletedTask = await api.delete(`/tasks/${taskId}`)
+
+         if (deletedTask.status === 200) {
+            form.reset()
+
+            setOpen(false)
+
+            toast.success('Tarefa deletada com sucesso!')
+
+            getUserTasks()
+         }
+      } catch (error) {
+         console.error('Error deleting task:', error)
+         toast.error('Erro ao deletar a tarefa. Tente novamente.')
       }
    }
 
@@ -121,126 +142,140 @@ export const TaskForm = ({ task, setOpen }: Props) => {
             description: task.description,
             status: statusConverted,
          })
-
-         console.log(form.getValues('status'))
       }
    }, [task])
 
    return (
-      <Card className="bg-gray-800/10">
-         <CardHeader className="hidden">
-            <CardTitle className="text-gray-300">Nova tarefa</CardTitle>
+      <AlertDialogContent className="bg-gray-800">
+         <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-300">
+               {task ? 'Visualizar tarefa' : 'Nova tarefa'}
+            </AlertDialogTitle>
 
-            <CardDescription className="text-gray-400">
-               Insira os detalhes da sua tarefa aqui.
-            </CardDescription>
-         </CardHeader>
+            <AlertDialogDescription className="text-gray-400">
+               {task ? 'Visualize os detalhes da tarefa.' : 'Insira os detalhes da tarefa aqui.'}
+            </AlertDialogDescription>
 
-         <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
-               <FieldGroup className="flex md:flex-row gap-4">
-                  <Controller
-                     name="title"
-                     control={form.control}
-                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="w-full gap-2 md:w-3/5">
-                           <FieldLabel htmlFor="title" className="text-gray-300" >
-                              Título
-                           </FieldLabel>
+         </AlertDialogHeader>
+         
+         <Card className="bg-gray-800/10 mt-4">
 
-                           <Input
-                              {...field}
-                              id="title"
-                              aria-invalid={fieldState.invalid}
-                              placeholder="Título da tarefa"
-                              className={`text-gray-400 placeholder:text-gray-900 `} />
+            <CardContent>
+               <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
-                           {fieldState.invalid && (
-                              <FieldError className="text-[12px]" errors={[fieldState.error]} />
-                           )}
-                        </Field>
-                     )}
-                  />
+                  <FieldGroup className="flex md:flex-row gap-4">
+                     <Controller
+                        name="title"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                           <Field data-invalid={fieldState.invalid} className="w-full gap-2 md:w-3/5">
+                              <FieldLabel htmlFor="title" className="text-gray-300" >
+                                 Título
+                              </FieldLabel>
 
-                  <Controller
-                     name="status"
-                     control={form.control}
-                     render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="flex-1 gap-2">
-                           <FieldLabel htmlFor="status" className="text-gray-300" >
-                              Status
-                           </FieldLabel>
+                              <Input
+                                 {...field}
+                                 id="title"
+                                 aria-invalid={fieldState.invalid}
+                                 placeholder="Título da tarefa"
+                                 className={`text-gray-400 placeholder:text-gray-900 `} />
 
-                           <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="text-gray-400 font-medium">
-                                 <SelectValue placeholder="Status" className="text-blue-800" />
-                              </SelectTrigger>
-
-                              <SelectContent className="bg-gray-600">
-                                 {statusOptions.map((status) => (
-                                    <SelectItem key={status.label} value={status.value} className="text-gray-300 data-[state=checked]:text-blue-400 data-[state=checked]:font-medium">
-                                       {status.label}
-                                    </SelectItem>
-                                 ))}
-                              </SelectContent>
-                           </Select>
-                           {fieldState.invalid && (
-                              <FieldError className="text-[12px]" errors={[fieldState.error]} />
-                           )}
-                        </Field>
-                     )}
-                  />
-               </FieldGroup>
-
-               <Controller
-                  name="description"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                     <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="description" className="text-gray-300">
-                           Descrição
-                        </FieldLabel>
-
-                        <InputGroup>
-                           <InputGroupTextarea
-                              {...field}
-                              id="description"
-                              placeholder="Descrição da tarefa"
-                              rows={6}
-                              className="min-h-24 text-gray-400 placeholder:text-gray-900 resize-none"
-                              aria-invalid={fieldState.invalid}
-                           />
-                           <InputGroupAddon align="block-end">
-                              <InputGroupText className="tabular-nums">
-                                 {field.value.length}/140 characteres
-                              </InputGroupText>
-                           </InputGroupAddon>
-                        </InputGroup>
-
-                        <FieldDescription>
-
-                        </FieldDescription>
-                        {fieldState.invalid && (
-                           <FieldError errors={[fieldState.error]} />
+                              {fieldState.invalid && (
+                                 <FieldError className="text-[12px]" errors={[fieldState.error]} />
+                              )}
+                           </Field>
                         )}
-                     </Field>
-                  )}
-               />
+                     />
 
-               <FieldGroup className="w-full flex flex-col justify-end gap-4 md:flex-row">
-                  <AlertDialogCancel className="flex-1 md:w-auto">
-                     <X />
-                     Cancelar
-                  </AlertDialogCancel>
+                     <Controller
+                        name="status"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                           <Field data-invalid={fieldState.invalid} className="flex-1 gap-2">
+                              <FieldLabel htmlFor="status" className="text-gray-300" >
+                                 Status
+                              </FieldLabel>
 
-                  <Button type="submit" className="flex-1 md:w-auto">
-                     <Check />
-                     Confirmar
-                  </Button>
-               </FieldGroup>
-            </form>
-         </CardContent>
-      </Card>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                 <SelectTrigger className="text-gray-400 font-medium">
+                                    <SelectValue placeholder="Status" className="text-blue-800" />
+                                 </SelectTrigger>
+
+                                 <SelectContent className="bg-gray-600">
+                                    {statusOptions.map((status) => (
+                                       <SelectItem key={status.label} value={status.value} className="text-gray-300 data-[state=checked]:text-blue-400 data-[state=checked]:font-medium">
+                                          {status.label}
+                                       </SelectItem>
+                                    ))}
+                                 </SelectContent>
+                              </Select>
+                              {fieldState.invalid && (
+                                 <FieldError className="text-[12px]" errors={[fieldState.error]} />
+                              )}
+                           </Field>
+                        )}
+                     />
+                  </FieldGroup>
+
+                  <Controller
+                     name="description"
+                     control={form.control}
+                     render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                           <FieldLabel htmlFor="description" className="text-gray-300">
+                              Descrição
+                           </FieldLabel>
+
+                           <InputGroup>
+                              <InputGroupTextarea
+                                 {...field}
+                                 id="description"
+                                 placeholder="Descrição da tarefa"
+                                 rows={6}
+                                 className="min-h-24 text-gray-400 placeholder:text-gray-900 resize-none"
+                                 aria-invalid={fieldState.invalid}
+                              />
+                              <InputGroupAddon align="block-end">
+                                 <InputGroupText className="tabular-nums">
+                                    {field.value.length}/140 characteres
+                                 </InputGroupText>
+                              </InputGroupAddon>
+                           </InputGroup>
+
+                           <FieldDescription>
+
+                           </FieldDescription>
+                           {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                           )}
+                        </Field>
+                     )}
+                  />
+
+                  {task && <FieldGroup className="flex flex-row justify-between">
+                     <p className="text-gray-300 text-[10px] font-bold">
+                        Criado em: {format(task.createdAt, "dd/MM/yyyy 'às' HH:mm")}</p>
+
+                     {task.updatedAt !== task.createdAt &&
+                        <p className="text-gray-300 text-[10px] font-bold">
+                           Última atualização: {format(task.updatedAt as Date, "dd/MM/yyyy 'às' HH:mm")}</p>}
+                  </FieldGroup>}
+
+                  <FieldGroup className="w-full flex flex-col justify-end gap-4 md:flex-row">
+                     <AlertDialogCancel className="flex-1 md:w-auto">
+                        <X />
+                        Cancelar
+                     </AlertDialogCancel>
+
+                     <Button type="submit" className="flex-1 md:w-auto">
+                        <Check />
+                        Confirmar
+                     </Button>
+                  </FieldGroup>
+               </form>
+            </CardContent>
+         </Card>
+      </AlertDialogContent>
    )
 }

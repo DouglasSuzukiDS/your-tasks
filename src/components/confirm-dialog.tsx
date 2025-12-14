@@ -3,30 +3,33 @@ import { deleteCookieApp } from "../lib/cookies"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Check, LogOut, X } from "lucide-react"
+import { ReactNode } from "react"
 import { Label } from "@radix-ui/react-dropdown-menu"
 
-export const LogoutDialog = () => {
-   const handleLogout = async () => {
-      await deleteCookieApp()
-
-      redirect('/login')
-   }
+type Props = {
+   label: string
+   iconLabel?: ReactNode
+   title: string
+   description: string
+   onConfirm: () => void
+}
+export const ConfirmDialog = ({ label, iconLabel, title, description, onConfirm }: Props) => {
 
    return (
       <AlertDialog>
          <AlertDialogTrigger>
             <Label className="flex items-center text-gray-400 gap-2 cursor-pointer">
-               <LogOut />
-               Logout
+               {iconLabel}
+               {label}
             </Label>
          </AlertDialogTrigger>
 
          <AlertDialogContent className="bg-gray-800">
             <AlertDialogHeader>
-               <AlertDialogTitle className="text-gray-300">Realmente deseja sair?</AlertDialogTitle>
+               <AlertDialogTitle className="text-gray-300">{title}</AlertDialogTitle>
 
                <AlertDialogDescription className="text-gray-400">
-                  Ao sair você terá que fazer login novamente para acessar suas tarefas.
+                  {description}
                </AlertDialogDescription>
 
             </AlertDialogHeader>
@@ -37,7 +40,7 @@ export const LogoutDialog = () => {
                   Cancelar
                </AlertDialogCancel>
 
-               <AlertDialogAction onClick={handleLogout}>
+               <AlertDialogAction onClick={onConfirm}>
                   <Check />
                   Confirmar
                </AlertDialogAction>
