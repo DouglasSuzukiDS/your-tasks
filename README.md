@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 Your Tasks
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-000?logo=nextdotjs&logoColor=fff)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=fff)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)
+![JWT](https://img.shields.io/badge/JWT-000?logo=jsonwebtokens&logoColor=fff)
 
-First, run the development server:
+## 📚 Sobre
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+O **YourTasks** é uma aplicação web para gerenciamento de tarefas, com autenticação de usuários, interface e API. O projeto utiliza Next.js, Prisma ORM, autenticação JWT e banco de dados PostgreSQL.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Funcionalidades
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 👤 Cadastro e login de usuários
+- 🔒 Autenticação segura via JWT
+- 🗂️ CRUD de tarefas (criar, listar, atualizar, remover)
+- 💡 Interface responsiva e amigável
+- 📄 API documentada com Swagger
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tecnologias
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js** — Framework React para SSR/SSG
+- **TypeScript** — Tipagem estática para JavaScript
+- **Prisma** — ORM para manipulação do Banco de Dados (PostgreSQL)
+- **JWT** — Autenticação
+- **Bcrypt** - Criptografia de senha
+- **Docker** — Containerização do ambiente
+- **Swagger** — Documentação da API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧑‍💻 Como rodar o projeto
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone o repositório:**
+   ```
+   git clone https://https://github.com/DouglasSuzukiDS/your-tasks
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   cd your-tasks
+   ```
+
+2. **Instale as dependências:**
+   ```
+   npm install
+   ```
+
+3. **Configure o banco de dados:**
+   - Edite o arquivo `.envExample` com as credenciais do seu banco.
+   - Rode as migrações:
+     ```
+     npx prisma migrate deploy
+     ```
+
+4. **Suba o ambiente com Docker:**
+   ```
+   docker-compose up -d
+   ```
+
+5. **Inicie o servidor:**
+   ```
+   npm run dev
+   ```
+---
+
+## 📖 Documentação da API
+
+Acesse a documentação Swagger **NÃO FUNCIONA AINDA**:  
+`/swagger.yaml` ou configure um Swagger UI apontando para esse arquivo.
+
+---
